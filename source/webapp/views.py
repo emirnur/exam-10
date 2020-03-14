@@ -1,9 +1,12 @@
 from urllib.parse import urlencode
 
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from webapp.forms import SimpleSearchForm, CreateForm, SimpleCreateForm
@@ -13,7 +16,7 @@ from webapp.models import File
 class IndexView(ListView):
     model = File
     template_name = 'index.html'
-    paginate_by = 2
+    paginate_by = 10
     paginate_orphans = 1
     ordering = '-created_at'
 
@@ -59,7 +62,9 @@ class FileView(DetailView):
 
     def dispatch(self, request, *args, **kwargs):
         file = self.get_object()
-        if self.request.user == file.author or self.request.user in file.private.all():
+        if file.access == 'general' or file.access == 'hidden':
+            return super().dispatch(request, *args, **kwargs)
+        elif self.request.user == file.author or self.request.user in file.private.all():
             return super().dispatch(request, *args, **kwargs)
         else:
             raise PermissionDenied
@@ -126,4 +131,12 @@ class FileDeleteView(DeleteView):
             return super().dispatch(request, *args, **kwargs)
         else:
             return redirect('accounts:login')
+
+
+class PrivateUserDelete(View):
+    def post(self, request):
+        file = File.objects.get(pk=int(request.POST['file_id']))
+        user = User.objects.get(id=int(request.POST['user_id']))
+        file.private.remove(user)
+        return JsonResponse({'status':'200'})
 

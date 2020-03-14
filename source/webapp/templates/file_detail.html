@@ -9,12 +9,55 @@
             <p class="card-text">created by Аноним at {{ file.created_at }}</p>
         {% endif %}
         <p><a href="{{ file.file.url }}" class="btn btn-primary">Скачать</a></p>
-    {% if user == file.author or request.user.has_perm.webapp.change_file%}
-        <p><a href="{% url "webapp:file_update" file.pk %}" class="btn btn-secondary">Изменить</a></p>
-    {% endif %}
-    {% if user == file.author or request.user.has_perm.webapp.delete_file%}
-        <p><a href="{% url "webapp:file_delete" file.pk %}" class="btn btn-danger">Удалить</a></p>
-    {% endif %}
-
+        {% if user == file.author or request.user.has_perm.webapp.change_file%}
+            <p><a href="{% url "webapp:file_update" file.pk %}" class="btn btn-secondary">Изменить</a></p>
+        {% endif %}
+        {% if user == file.author or request.user.has_perm.webapp.delete_file%}
+            <p><a href="{% url "webapp:file_delete" file.pk %}" class="btn btn-danger">Удалить</a></p>
+        {% endif %}
+        <h2>Приватные пользователи:</h2>
+        {% for user in file.private.all %}
+            <p id="private_user_{{ user.pk }}"><strong>{{ user.username }}</strong> <a onclick="deletePrivateUser(event, {{ file.pk }}, {{ user.pk }})" class="btn btn-danger">Удалить</a></p>
+        {% endfor %}
     </div>
+
+    <script>
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        function deletePrivateUser(event, file_id, user_id) {
+            event.preventDefault();
+                let csrftoken = getCookie('csrftoken');
+                let data = {
+                    file_id: file_id,
+                    user_id: user_id
+                };
+                $.ajax({
+                            method: 'POST',
+                            url: '/private_user_delete/',
+                            data: data,
+                            dataType: 'json',
+                            headers: {
+                                "X-CSRFToken": csrftoken
+                            },
+                            success: function () {
+                                var elem = $(`#private_user_${user_id}`);
+                                elem.remove();
+                            }
+                })
+        }
+    </script>
 {% endblock %}
+
