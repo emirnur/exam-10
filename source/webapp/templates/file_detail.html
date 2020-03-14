@@ -9,10 +9,12 @@
             <p class="card-text">created by Аноним at {{ file.created_at }}</p>
         {% endif %}
         <p><a href="{{ file.file.url }}" class="btn btn-primary">Скачать</a></p>
-{#    {% if request.user.has_perms %}#}
+    {% if user == file.author or request.user.has_perm.webapp.change_file%}
         <p><a href="{% url "webapp:file_update" file.pk %}" class="btn btn-secondary">Изменить</a></p>
+    {% endif %}
+    {% if user == file.author or request.user.has_perm.webapp.delete_file%}
         <p><a href="{% url "webapp:file_delete" file.pk %}" class="btn btn-danger">Удалить</a></p>
-{#    {% endif %}#}
+    {% endif %}
 
     </div>
 {% endblock %}

@@ -1,12 +1,12 @@
 from urllib.parse import urlencode
 
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from webapp.forms import SimpleSearchForm
+from webapp.forms import SimpleSearchForm, CreateForm, SimpleCreateForm
 from webapp.models import File
 
 
@@ -26,8 +26,11 @@ class IndexView(ListView):
         queryset = super().get_queryset()
         if self.search_value:
             queryset = queryset.filter(
-                Q(sign__icontains=self.search_value)
+                Q(sign__icontains=self.search_value),
+                access='general'
             )
+        else:
+            queryset = queryset.filter(access='general')
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -50,13 +53,27 @@ class FileView(DetailView):
     model = File
     template_name = 'file_detail.html'
 
+    def get_object(self, queryset=None):
+        file = File.objects.get(pk=self.kwargs.get('pk'))
+        return file
+
+    def dispatch(self, request, *args, **kwargs):
+        file = self.get_object()
+        if self.request.user == file.author or self.request.user in file.private.all():
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
+
 
 class FileCreateView(CreateView):
     model = File
     template_name = 'file_create.html'
-    fields = ('sign', 'file')
-    # permission_required = 'webapp.add_product', 'webapp.can_have_piece_of_pizza'
-    # permission_denied_message = '403 Доступ запрещён!'
+
+    def get_form_class(self):
+        if self.request.user.username:
+            return CreateForm
+        else:
+            return SimpleCreateForm
 
     def form_valid(self, form):
         if self.request.user.username:
@@ -70,12 +87,13 @@ class FileCreateView(CreateView):
 class FileUpdateView(UpdateView):
     model = File
     template_name = 'file_update.html'
-    fields = ('sign', 'file')
     context_object_name = 'file'
 
-    # def test_func(self):
-    #     if self.request.user.has_perm('webapp.change_file'):
-    #         return self.request.author.pk == self.request.user.pk
+    def get_form_class(self):
+        if self.request.user.username:
+            return CreateForm
+        else:
+            return SimpleCreateForm
 
     def get_object(self, queryset=None):
         file = File.objects.get(pk=self.kwargs.get('pk'))

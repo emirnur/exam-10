@@ -28,20 +28,25 @@
 
     <div class="row">
     {% for file in user_obj.file_author.all %}
-        <div class="col col-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title"><a href="{% url 'webapp:file_detail' file.pk %}">{{ file.sign }}</a></h5>
-                    {% if file.author %}
-                        <p class="card-text">created by <a href="">{{ file.author }}</a> at {{ file.created_at }}</p>
-                    {% else %}
-                        <p class="card-text">created by Аноним at {{ file.created_at }}</p>
-                    {% endif %}
-                    <a href="{% url "webapp:file_delete" file.pk %}" class="btn btn-primary">Скачать</a>
+        {% if file.access == 'general' or user_obj == user%}
+
+            <div class="col col-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="{% url 'webapp:file_detail' file.pk %}">{{ file.sign }}</a></h5>
+                        {% if file.author %}
+                            <p class="card-text">created by <a href="">{{ file.author }}</a> at {{ file.created_at }}</p>
+                        {% else %}
+                            <p class="card-text">created by Аноним at {{ file.created_at }}</p>
+                        {% endif %}
+                        <a href="{% url "webapp:file_delete" file.pk %}" class="btn btn-primary">Скачать</a>
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
+
     {% endfor %}
+
     </div>
 
 {% endblock %}
