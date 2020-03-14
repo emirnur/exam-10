@@ -17,7 +17,7 @@
                         {% else %}
                             <p class="card-text">created by Аноним at {{ file.created_at }}</p>
                         {% endif %}
-                        <a href="" class="btn btn-primary">Скачать</a>
+                        <a href="{{ file.file.url }}" class="btn btn-primary">Скачать</a>
                     </div>
                 </div>
             </div>

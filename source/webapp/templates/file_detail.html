@@ -8,7 +8,11 @@
         {% else %}
             <p class="card-text">created by Аноним at {{ file.created_at }}</p>
         {% endif %}
-        <p><a href="{% url "webapp:file_update" file.pk %}" class="btn btn-primary">Изменить</a></p>
+        <p><a href="{{ file.file.url }}" class="btn btn-primary">Скачать</a></p>
+{#    {% if request.user.has_perms %}#}
+        <p><a href="{% url "webapp:file_update" file.pk %}" class="btn btn-secondary">Изменить</a></p>
         <p><a href="{% url "webapp:file_delete" file.pk %}" class="btn btn-danger">Удалить</a></p>
+{#    {% endif %}#}
+
     </div>
 {% endblock %}

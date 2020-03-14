@@ -1,7 +1,8 @@
 from urllib.parse import urlencode
 
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
@@ -72,6 +73,21 @@ class FileUpdateView(UpdateView):
     fields = ('sign', 'file')
     context_object_name = 'file'
 
+    # def test_func(self):
+    #     if self.request.user.has_perm('webapp.change_file'):
+    #         return self.request.author.pk == self.request.user.pk
+
+    def get_object(self, queryset=None):
+        file = File.objects.get(pk=self.kwargs.get('pk'))
+        return file
+
+    def dispatch(self, request, *args, **kwargs):
+        file = self.get_object()
+        if self.request.user == file.author or self.request.user.has_perm('webapp.change_file'):
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            return redirect('accounts:login')
+
     def get_success_url(self):
         return reverse('webapp:file_detail', kwargs={'pk': self.object.pk})
 
@@ -81,4 +97,15 @@ class FileDeleteView(DeleteView):
     template_name = 'file_delete.html'
     success_url = reverse_lazy('webapp:index')
     context_object_name = 'file'
+
+    def get_object(self, queryset=None):
+        file = File.objects.get(pk=self.kwargs.get('pk'))
+        return file
+
+    def dispatch(self, request, *args, **kwargs):
+        file = self.get_object()
+        if self.request.user == file.author or self.request.user.has_perm('webapp.change_file'):
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            return redirect('accounts:login')
 
