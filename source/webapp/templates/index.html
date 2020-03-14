@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Файлы{% endblock %}
+{% block content %}
+    <h1 class="text-center">Файлы</h1>
+    <div class="row">
+        {% for file in file_list %}
+            <div class="col col-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="{% url 'webapp:file_detail' file.pk %}">{{ file.sign }}</a></h5>
+                        {% if file.author %}
+                            <p class="card-text">created by <a href="">{{ file.author }}</a> at {{ file.created_at }}</p>
+                        {% else %}
+                            <p class="card-text">created by Аноним at {{ file.created_at }}</p>
+                        {% endif %}
+                        <a href="" class="btn btn-primary">Скачать</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

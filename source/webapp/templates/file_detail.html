@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}{{ file.sign }}{% endblock %}
+{% block content %}
+    <div class="text-center">
+        <h1>{{ file.sign }}</h1>
+        {% if file.author %}
+            <p class="card-text">created by <a href="">{{ file.author }}</a> at {{ file.created_at }}</p>
+        {% else %}
+            <p class="card-text">created by Аноним at {{ file.created_at }}</p>
+        {% endif %}
+        <p><a href="{% url "webapp:file_update" file.pk %}" class="btn btn-primary">Изменить</a></p>
+        <p><a href="{% url "webapp:file_delete" file.pk %}" class="btn btn-danger">Удалить</a></p>
+    </div>
+{% endblock %}
