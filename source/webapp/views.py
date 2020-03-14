@@ -26,6 +26,11 @@ class FileCreateView(CreateView):
     # permission_required = 'webapp.add_product', 'webapp.can_have_piece_of_pizza'
     # permission_denied_message = '403 Доступ запрещён!'
 
+    def form_valid(self, form):
+        if self.request.user is not None:
+            form.instance.author = self.request.user
+        return super().form_valid(form)
+
     def get_success_url(self):
         return reverse('webapp:file_detail', kwargs={'pk': self.object.pk})
 
