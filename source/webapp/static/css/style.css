@@ -1,0 +1,36 @@
+.pagination {
+    text-align: center;
+    flex-direction: column;
+    margin-top: 10px;
+}
+.step-links{
+    margin: auto;
+}
+
+.pagination a, .pagination .page-disabled {
+   display: inline-block;
+   border: solid 1px #6a7ddd;
+   border-radius: 3px;
+   padding: 5px;
+   margin: 3px;
+}
+
+.pagination a {
+   background: darkslategray;
+   color: white;
+}
+
+.pagination a:hover {
+   background: seagreen;
+   text-decoration: underline;
+}
+
+.pagination .page-disabled {
+   background: darkcyan;
+   color: #dddddd
+}
+
+.page-input {
+    font-size: 16px;
+    width: 50px;
+}

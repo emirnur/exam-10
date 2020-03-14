@@ -2,6 +2,10 @@
 {% block title %}Файлы{% endblock %}
 {% block content %}
     <h1 class="text-center">Файлы</h1>
+    {% include 'partial/simple_search.html' %}
+    {% if is_paginated %}
+        {% include 'partial/pagination.html' %}
+    {% endif %}
     <div class="row">
         {% for file in file_list %}
             <div class="col col-3">
